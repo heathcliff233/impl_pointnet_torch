@@ -22,12 +22,13 @@ class Transform(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        batch_sz = x.size()[0]
+        batch_sz, _, num_points = x.size()
         res = x
         x = self.relu(self.bn1(self.conv1(x)))
         x = self.relu(self.bn2(self.conv2(x)))
         x = self.relu(self.bn3(self.conv3(x)))
-        x, _ = torch.max(x, dim=2, keepdim=True)  # Maxpool1d is not able to customize kernel !
+        x = nn.MaxPool1d(num_points)(x)
+        #x, _ = torch.max(x, dim=2, keepdim=True)  
         x = x.view(batch_sz, 1024)
         x = self.relu(self.bn4(self.fc1(x)))
         x = self.relu(self.bn5(self.fc2(x)))
@@ -35,7 +36,7 @@ class Transform(nn.Module):
         x = x.view(-1, self.k, self.k)
         res = res.transpose(1, 2)
         x = torch.bmm(res, x)
-        x = x + res                        # use id to enhance the learning of transform matrix 
+        x = x + res                        # add identity mateix to enhance the learning of transform matrix 
         x = x.transpose(1, 2)
 
         return x

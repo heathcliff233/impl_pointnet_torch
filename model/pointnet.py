@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class Transform(nn.Module):
-    def __init__(self, k):
+    def __init__(self, k=3):
         super(Transform, self).__init__()
         self.k = k
         self.conv1 = nn.Conv1d(  k,  64, 1)
@@ -60,12 +60,13 @@ class PointFeature(nn.Module):
         x = self.input_trans(x)
         x = self.relu(self.bn1(self.conv1(x)))
         x = self.feature_trans(x)
+        feat = x
         x = self.relu(self.bn2(self.conv2(x)))
         x = self.bn3(self.conv3(x))
         x, _ = torch.max(x, 2, keepdims=True)
         x = x.view(-1, 1024)
 
-        return x
+        return x, feat
 
 
 

@@ -16,7 +16,7 @@ class PointnetCls(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        x = self.feat(x)
+        x, _ = self.feat(x)
         x = self.relu(self.bn1(self.fc1(x)))
         x = self.relu(self.bn2(self.dropout(self.fc2(x))))
         x = self.fc3(x)

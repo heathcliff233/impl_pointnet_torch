@@ -6,7 +6,7 @@ from pointnet import PointFeature
 class PointnetSem(nn.Module):
     def __init__(self, num_classes=10):
         super(PointnetSem, self).__init__()
-        self.feat = PointFeature(global_feature=True, feature_transform=True)
+        self.feat = PointFeature()
         self.conv1 = nn.Conv1d(1088, 512, 1)
         self.conv2 = nn.Conv1d(512, 256, 1)
         self.conv3 = nn.Conv1d(256, 128, 1)
@@ -19,7 +19,7 @@ class PointnetSem(nn.Module):
 
     def forward(self, x):
         B, C, N = x.size()
-        x, transfeat = self.feat(x)
+        x, trans, transfeat = self.feat(x)
         x = x.view(-1, 1024, 1).repeat(1,1,N)
         x = torch.cat([x, transfeat], 1)
 
@@ -32,5 +32,5 @@ class PointnetSem(nn.Module):
         x = x.transpose(1, 2)
         x = F.log_softmax(x, dim=-1)
 
-        return x
+        return x, trans
 

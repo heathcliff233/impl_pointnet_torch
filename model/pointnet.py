@@ -34,17 +34,18 @@ class Transform(nn.Module):
         x = self.relu(self.bn5(self.fc2(x)))
         x = self.fc3(x)
         x = x.view(-1, self.k, self.k)
+        mx = x
         res = res.transpose(1, 2)
         x = torch.bmm(res, x)
         x = x + res                        # add identity mateix to enhance the learning of transform matrix 
         x = x.transpose(1, 2)
 
-        return x
+        return x, mx
         
 
 
 class PointFeature(nn.Module):
-    def __init__(self, global_feature=True, feature_transform=True):
+    def __init__(self):
         super(PointFeature, self).__init__()
         self.input_trans = Transform(k=3)
         self.conv1 = nn.Conv1d(3, 64, 1)
@@ -57,16 +58,16 @@ class PointFeature(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        x = self.input_trans(x)
+        x, trans = self.input_trans(x)
         x = self.relu(self.bn1(self.conv1(x)))
-        x = self.feature_trans(x)
+        x, _ = self.feature_trans(x)
         feat = x
         x = self.relu(self.bn2(self.conv2(x)))
         x = self.bn3(self.conv3(x))
         x, _ = torch.max(x, 2, keepdims=True)
         x = x.view(-1, 1024)
 
-        return x, feat
+        return x, trans, feat
 
 
 

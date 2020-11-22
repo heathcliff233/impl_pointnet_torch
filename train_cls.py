@@ -10,7 +10,7 @@ from utils.loader import ModelNet40
 
 def parse_args():
     parser = argparse.ArgumentParser('PointNet')
-    parser.add_argument('--dataset_path', default='./data/ModelNet40', help='specify the path to dataset (default to ./data/modelnet40)')
+    parser.add_argument('--dataset_path', default='./data/ModelNet40', help='specify the path to dataset (default to ./data/ModelNet40)')
     parser.add_argument('--download', type=bool, default=False, help='whether to download the modelnet40')
     parser.add_argument('--batch_size', type=int, default=32, help='training batch size (default to 24')
     parser.add_argument('--trained_model', default='', help='pre-trained model path (default to none)')

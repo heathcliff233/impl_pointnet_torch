@@ -4,11 +4,13 @@ import os
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
+from torch.utils.data import DataLoader
 from model.pointnet_sem import PointnetSem
+from utils.loader import ModelNet40
 
 def parse_args():
     parser = argparse.ArgumentParser('PointNet')
-    parser.add_argument('--dataset_path', default='./data/ModelNet40', help='specify the path to dataset (default to ./data/modelnet40)')
+    parser.add_argument('--dataset_path', default='./data/ModelNet40', help='specify the path to dataset (default to ./data/ModelNet40)')
     parser.add_argument('--download', type=bool, default=False, help='whether to download the modelnet40')
     parser.add_argument('--batch_size', type=int, default=32, help='training batch size (default to 24')
     parser.add_argument('--trained_model', default='', help='pre-trained model path (default to none)')
@@ -30,8 +32,7 @@ def train(model, loader, optim, regulize=True, epoch, opt, device, classes):
         pred = pred.view(-1, classes)
         label = label.view(-1)
         loss = F.nll_loss(pred, label)
-        I = torch.eye(3).view(1,3,3)
-        I = trans.is_cuda() ? I.to(torch.device("cuda:0")) : I
+        I = torch.eye(3).view(1,3,3).to(device)
         loss += torch.mean(torch.norm(torch.bmm(trans, trans.transpose(1,2))-I, dim=(1,2)))*0.001
         loss.backward()
         optim.step()

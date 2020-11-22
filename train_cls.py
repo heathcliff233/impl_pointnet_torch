@@ -10,6 +10,8 @@ from utils.loader import ModelNet40
 
 def parse_args():
     parser = argparse.ArgumentParser('PointNet')
+    parser.add_argument('--dataset_path', default='./data/ModelNet40', help='specify the path to dataset (default to ./data/modelnet40)')
+    parser.add_argument('--download', type=bool, default=False, help='whether to download the modelnet40')
     parser.add_argument('--batch_size', type=int, default=32, help='training batch size (default to 24')
     parser.add_argument('--trained_model', default='', help='pre-trained model path (default to none)')
     parser.add_argument('--epoch',  default=200, type=int, help='number of epoch in training (default to 200)')
@@ -56,7 +58,13 @@ def test(model, loader, epoch, opt, device):
     print("[epoch %3d: batch %3d] test loss: %7f accuracy %7f" % (epoch, i, train_loss, correct/float(len(loader.dataset))))
 
 def main(opt):
-    device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")    
+    device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    path = opt.dataset_path
+    if opt.download :
+        os.system("wget -O ./data/modelnet40.zip http://modelnet.cs.princeton.edu/ModelNet40.zip")
+        os.system("unzip ./data/modelnet40.zip -d ./data")
+        os.system("rm ./data/modelnet40.zip")
+        path = "./data/ModelNet40"
     train_set = ModelNet40(path=path,npoints=1024,test=False)
     test_set = ModelNet40(path=path,npoints=1024,test=True)
     train_loader = DataLoader(train_set, batch_size=opt.batch_size,shuffle=True, num_workers=12)

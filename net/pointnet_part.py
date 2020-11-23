@@ -3,9 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pointnet import PointFeature
 
-class PointnetSem(nn.Module):
+
+class PointnetPart(nn.Module):
     def __init__(self, num_classes=10):
-        super(PointnetSem, self).__init__()
+        super(PointnetPart, self).__init__()
         self.feat = PointFeature()
         self.conv1 = nn.Conv1d(1088, 512, 1)
         self.conv2 = nn.Conv1d(512, 256, 1)
@@ -20,7 +21,7 @@ class PointnetSem(nn.Module):
     def forward(self, x):
         B, C, N = x.size()
         x, trans, transfeat = self.feat(x)
-        x = x.view(-1, 1024, 1).repeat(1,1,N)
+        x = x.view(-1, 1024, 1).repeat(1, 1, N)
         x = torch.cat([x, transfeat], 1)
 
         x = self.relu(self.bn1(self.conv1(x)))

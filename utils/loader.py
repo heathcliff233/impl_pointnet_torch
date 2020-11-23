@@ -1,10 +1,29 @@
 import torch
-from torch.utils.data import DataSet
+from torch.utils.data import Dataset
 import os
 import os.path
 import numpy as np
+import h5py
 
-class ModelNet40(DataSet):
+
+class ShapeNet(Dataset):
+    def __init__(self, path, npoints):
+        self.path = path
+        self.npoints = npoints
+
+    def __getitem__(self, idx):
+        f = h5py.File(self.path)
+        points = f['data'][idx][:][:self.npoints]
+        seg = f['pid'][idx][:][:self.npoints]
+        points = torch.unsqueeze(torch.from_numpy(points).float(), 0)
+        seg = torch.unsqueeze(torch.from_numpy(seg), 0).long()
+        return points, seg
+
+    def __len__(self):
+        return len(h5py.File(self.path)['pid'])
+
+
+class ModelNet40(Dataset):
     def __init__(self, path, npoints, test=True):
         self.path = path
         self.npoints = npoints
@@ -19,7 +38,6 @@ class ModelNet40(DataSet):
         label = torch.Tensor(label).long()
         return points, label
         
-
     def __len__(self):
         return len(self.input_pairs)
 
@@ -28,9 +46,9 @@ class ModelNet40(DataSet):
         gt_key = os.listdir(path)
         for idx, obj in enumerate(gt_key):
             if test:
-                path_to_files = osp.join(path, obj, 'test')
+                path_to_files = os.path.join(path, obj, 'test')
             else:
-                path_to_files = osp.join(ath, obj, 'train')
+                path_to_files = os.path.join(path, obj, 'train')
             files = os.listdir(path_to_files)
             filepaths = [(os.path.join(path_to_files, file), idx) for file in files]
             input_pairs = input_pairs + filepaths

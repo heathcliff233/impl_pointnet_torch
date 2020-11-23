@@ -1,7 +1,7 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from model.pointnet import PointFeature
+from pointnet import PointFeature
+
 
 class PointnetCls(nn.Module):
     def __init__(self, num_classes=10):

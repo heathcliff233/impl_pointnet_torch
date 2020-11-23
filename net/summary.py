@@ -1,7 +1,7 @@
 import torch
 from torchsummary import summary
 from pointnet_cls import PointnetCls
-from pointnet_sem import PointnetSem
+from pointnet_part import PointnetPart
 '''
 clsnet = PointnetCls(10)
 print("pointnet for classification")
@@ -12,7 +12,7 @@ print("pointnet for semantic segmentation")
 summary(semnet, (3, 100))
 '''
 
-model = PointnetSem(10)
+model = PointnetPart(10)
 optimizer = torch.optim.SGD(model.parameters(), lr=1e-4, momentum=0.9)
 for param_tensor in model.state_dict():
     print(param_tensor, "\t", model.state_dict()[param_tensor].size())
